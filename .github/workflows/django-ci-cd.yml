@@ -51,7 +51,14 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --name blog-cluster --region ap-south-1
+        aws eks get-token --cluster-name blog-cluster --region ap-south-1
+        aws eks update-kubeconfig --name blog-cluster --region ap-south-1 --role-arn arn:aws:iam::381492036157:user/github-actions-eks
+
+    - name: Verify kubectl configuration
+      run: |
+        kubectl config view --raw
+        kubectl config get-contexts
+        kubectl cluster-info
 
     - name: Deploy to EKS
       env:
