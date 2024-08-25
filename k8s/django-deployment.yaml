@@ -18,6 +18,11 @@ spec:
         image: 381492036157.dkr.ecr.ap-south-1.amazonaws.com/blog/django-backend:latest
         ports:
         - containerPort: 8000
+        env:
+        - name: DEBUG
+          value: "False"
+        - name: ALLOWED_HOSTS
+          value: "*"
         resources:
           requests:
             cpu: "100m"
@@ -25,13 +30,15 @@ spec:
           limits:
             cpu: "500m"
             memory: "512Mi"
-        env:
-        - name: DEBUG
-          value: "False"
-        - name: ALLOWED_HOSTS
-          value: "*"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8000
           initialDelaySeconds: 5
           periodSeconds: 10
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1000
