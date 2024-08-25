@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Table</title>
+</head>
+<body>
+    <h1>Dummy Data Table</h1>
+    <table border="1">
+        <tr>
+            <th>Column 1</th>
+            <th>Column 2</th>
+            <th>Column 3</th>
+            <th>Column 4</th>
+        </tr>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.column1 }}</td>
+            <td>{{ item.column2 }}</td>
+            <td>{{ item.column3 }}</td>
+            <td>{{ item.column4 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{% url 'home' %}">Back to Home</a>
+</body>
+</html>
