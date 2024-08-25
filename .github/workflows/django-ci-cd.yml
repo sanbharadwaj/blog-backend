@@ -35,6 +35,8 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-south-1
+        role-to-assume: arn:aws:iam::381492036157:role/github-actions-eks-role
+        role-duration-seconds: 1200
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -51,8 +53,7 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws eks get-token --cluster-name blog-cluster --region ap-south-1
-        aws eks update-kubeconfig --name blog-cluster --region ap-south-1 --role-arn arn:aws:iam::381492036157:user/github-actions-eks
+        aws eks update-kubeconfig --name blog-cluster --region ap-south-1
 
     - name: Verify kubectl configuration
       run: |
