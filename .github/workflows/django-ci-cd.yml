@@ -10,9 +10,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
     - name: Install dependencies
@@ -27,10 +27,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -38,7 +38,7 @@ jobs:
 
     - name: Login to Amazon ECR
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+      uses: aws-actions/amazon-ecr-login@v2
 
     - name: Build, tag, and push image to Amazon ECR
       env:
@@ -49,7 +49,14 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-    - name: Update Kubernetes deployment
+    - name: Update kubeconfig
+      run: aws eks get-token --cluster-name blog-cluster --region ap-south-1 | kubectl apply -f -
+
+    - name: Deploy to EKS
+      env:
+        ECR_REGISTRY: 381492036157.dkr.ecr.ap-south-1.amazonaws.com
+        ECR_REPOSITORY: blog/django-backend
+        IMAGE_TAG: ${{ github.sha }}
       run: |
-        aws eks get-token --cluster-name blog-cluster --region ap-south-1 | kubectl apply -f k8s/
+        kubectl apply -f k8s/
         kubectl set image deployment/django-backend -n blog django-backend=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
