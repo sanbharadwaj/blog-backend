@@ -62,3 +62,20 @@ jobs:
       run: |
         kubectl apply -f k8s/
         kubectl set image deployment/django-backend -n blog django-backend=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Verify AWS CLI configuration
+      run: |
+        aws sts get-caller-identity
+        aws eks get-token --cluster-name blog-cluster --region ap-south-1
+
+    - name: Verify kubectl configuration
+      run: |
+        kubectl config view --raw
+        kubectl config get-contexts
+        kubectl cluster-info
+
+    - name: Deploy to EKS
+      run: |
+        kubectl apply -f k8s/ --validate=false
+        kubectl get pods -n blog
+        kubectl get services -n blog
